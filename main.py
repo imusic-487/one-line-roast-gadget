@@ -11,6 +11,7 @@ white space.
 Standard library only. No network, no randomness, no timestamps.
 """
 
+import hashlib
 import os
 import sys
 from pathlib import Path
@@ -34,6 +35,8 @@ def main() -> None:
         )
     if not text.strip():
         raise RuntimeError("entry must not be only white space")
+    if "\n" in text or "\r" in text:
+        raise RuntimeError("entry must be a single line, no line breaks")
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     OUTPUT_FILE.write_bytes(source)
@@ -54,7 +57,11 @@ def main() -> None:
             f"source is 0x{source[offset]:02x})"
         )
 
-    print(f"wrote {OUTPUT_FILE} ({len(source)} bytes, {len(text)} characters)")
+    print(
+        f"wrote {OUTPUT_FILE} ({len(source)} bytes, "
+        f"{len(text)} characters, "
+        f"sha256 {hashlib.sha256(written).hexdigest()})"
+    )
 
 
 if __name__ == "__main__":
